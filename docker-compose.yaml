@@ -1,27 +1,27 @@
-version: '3'
+version: "3"
 
 networks:
   whaticket:
 
 services:
-
   backend:
     build:
       context: ./backend
       dockerfile: ./Dockerfile
     environment:
-      - DB_HOST=mysql
-      - DB_USER=root
-      - DB_PASS=${MYSQL_ROOT_PASSWORD:-strongpassword}
-      - DB_NAME=${MYSQL_DATABASE:-whaticket}
+      - DB_HOST=postgres
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASS=${DB_PASS:-lipao2002}
+      - DB_NAME=${DB_NAME:-whaticket}
+      - DB_PORT=5432
       - JWT_SECRET=${JWT_SECRET:-3123123213123}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-75756756756}
       - BACKEND_URL=${BACKEND_URL:-http://localhost}
-      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
-      - PROXY_PORT=${PROXY_PORT:-8080}
+      - FRONTEND_URL=${FRONTEND_URLs:-http://localhost:3001}
+      - PROXY_PORT=${PROXY_PORT:-3030}
       - CHROME_ARGS=--no-sandbox --disable-setuid-sandbox
     ports:
-      - ${BACKEND_PORT:-8080}:3000
+      - ${BACKEND_PORT:-3030}:3000
     volumes:
       - ./backend/public/:/usr/src/app/public/
       - ./backend/.wwebjs_auth/:/usr/src/app/.wwebjs_auth/
@@ -30,14 +30,14 @@ services:
 
   frontend:
     ports:
-      - ${FRONTEND_PORT:-3000}:80
-      - ${FRONTEND_SSL_PORT:-3001}:443
+      - ${FRONTEND_PORT:-3001}:80
+      - ${FRONTEND_SSL_PORT:-3002}:443
     build:
       context: ./frontend
       dockerfile: ./Dockerfile
     environment:
       - URL_BACKEND=backend:3000
-      - REACT_APP_BACKEND_URL=${BACKEND_URL:-http://localhost}:${PROXY_PORT:-8080}/
+      - REACT_APP_BACKEND_URL=${BACKEND_URL:-http://localhost}:${PROXY_PORT:-3030}/
       - FRONTEND_SERVER_NAME=${FRONTEND_SERVER_NAME}
       - BACKEND_SERVER_NAME=${BACKEND_SERVER_NAME}
     volumes:
@@ -46,17 +46,16 @@ services:
     networks:
       - whaticket
 
-  mysql:
-    image: ${MYSQL_ENGINE:-mariadb}:${MYSQL_VERSION:-10.6}
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_bin    
+  postgres:
+    image: ${DB_ENGINE:-postgres}:${DB_VERSION:-latest}
     volumes:
-      - ./.docker/data/:/var/lib/mysql
+      - ./.docker/data/:/var/lib/postgresql
     environment:
-      - MYSQL_DATABASE=${MYSQL_DATABASE:-whaticket}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-strongpassword}
-      - TZ=${TZ:-America/Fortaleza}
+      - POSTGRES_DB=${DB_NAME:-whaticket}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASS:-lipao2002}
     ports:
-      - ${MYSQL_PORT:-3306}:3306
+      - ${HOST_PORT:-5433}:5432
     restart: always
     networks:
       - whaticket
