@@ -106,7 +106,9 @@ const verifyMediaMessage = async (
 
   try {
     await writeFileAsync(
-      join(__dirname, "..", "..", "..", "public", media.filename),
+      process.env.PUBLIC_FOLDER_DIR
+        ? join(process.env.PUBLIC_FOLDER_DIR, media.filename)
+        : join(__dirname, "..", "..", "..", "public", media.filename),
       media.data,
       "base64"
     );
