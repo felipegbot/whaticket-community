@@ -153,12 +153,7 @@ const verifyMessage = async (
   };
 
   await ticket.update({
-    lastMessage:
-      msg.type === "location"
-        ? msg.location.description
-          ? "Localization - " + msg.location.description.split("\\n")[0]
-          : "Localization"
-        : msg.body
+    lastMessage: msg.type === "location" ? "Localização" : msg.body
   });
 
   await CreateMessageService({ messageData });
@@ -174,11 +169,7 @@ const prepareLocation = (msg: WbotMessage): WbotMessage => {
 
   msg.body = "data:image/png;base64," + msg.body + "|" + gmapsUrl;
 
-  msg.body +=
-    "|" +
-    (msg.location.description
-      ? msg.location.description
-      : msg.location.latitude + ", " + msg.location.longitude);
+  msg.body += "|" + msg.location.latitude + ", " + msg.location.longitude;
 
   return msg;
 };
