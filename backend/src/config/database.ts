@@ -12,5 +12,14 @@ module.exports = {
   username: process.env.DB_USER,
   password: process.env.DB_PASS,
   port: process.env.DB_PORT,
-  logging: false
+  logging: false,
+  dialectOptions:
+    process.env.NODE_ENV === "production"
+      ? {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false
+          }
+        }
+      : {}
 };

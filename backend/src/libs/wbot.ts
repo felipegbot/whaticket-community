@@ -13,18 +13,24 @@ interface Session extends Client {
 const sessions: Session[] = [];
 
 const syncUnreadMessages = async (wbot: Session) => {
+  console.log(`Syncing unread messages`);
   const chats = await wbot.getChats();
+  console.log(`Chats fetched`);
 
   /* eslint-disable no-restricted-syntax */
   /* eslint-disable no-await-in-loop */
   for (const chat of chats) {
     if (chat.unreadCount > 0) {
+      console.log(`Unread messages found`);
       const unreadMessages = await chat.fetchMessages({
         limit: chat.unreadCount
       });
+      console.log(`Unread messages fetched`);
 
       for (const msg of unreadMessages) {
+        console.log(`Handling message`);
         await handleMessage(msg, wbot);
+        console.log(`Message handled`);
       }
 
       await chat.sendSeen();
@@ -43,16 +49,16 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         sessionCfg = JSON.parse(whatsapp.session);
       }
 
-      const args:String = process.env.CHROME_ARGS || "";
+      const args: String = process.env.CHROME_ARGS || "";
 
       const wbot: Session = new Client({
         session: sessionCfg,
-        authStrategy: new LocalAuth({clientId: 'bd_'+whatsapp.id}),
+        authStrategy: new LocalAuth({ clientId: "bd_" + whatsapp.id }),
         puppeteer: {
           executablePath: process.env.CHROME_BIN || undefined,
           // @ts-ignore
           browserWSEndpoint: process.env.CHROME_WS || undefined,
-          args: args.split(' ')
+          args: args.split(" ")
         }
       });
 
@@ -122,8 +128,12 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
           sessions.push(wbot);
         }
 
+        console.log(`Sessions updated`);
+
         wbot.sendPresenceAvailable();
-        await syncUnreadMessages(wbot);
+        console.log(`Presence available`);
+        //await syncUnreadMessages(wbot);
+        console.log(`Unread messages synced`);
 
         resolve(wbot);
       });

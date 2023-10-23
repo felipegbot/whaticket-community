@@ -1,8 +1,7 @@
 import openSocket from "socket.io-client";
-import { getBackendUrl } from "../config";
 
 function connectToSocket() {
-    return openSocket(getBackendUrl());
+  return openSocket(localStorage.getItem("REACT_APP_BACKEND_URL"));
 }
 
 export default connectToSocket;

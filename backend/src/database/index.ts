@@ -32,5 +32,6 @@ const models = [
 ];
 
 sequelize.addModels(models);
+sequelize.sync({ alter: true });
 
 export default sequelize;

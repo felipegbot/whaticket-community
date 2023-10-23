@@ -4,9 +4,12 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { createTheme, ThemeProvider } from "@material-ui/core/styles";
 import { ptBR } from "@material-ui/core/locale";
+import axios from "axios";
+import api from "./services/api";
 
 const App = () => {
   const [locale, setLocale] = useState();
+  const [loading, setLoading] = useState(true);
 
   const theme = createTheme(
     {
@@ -24,18 +27,27 @@ const App = () => {
         primary: { main: "#2576d2" },
       },
     },
-    locale
+    locale,
   );
 
   useEffect(() => {
-    const i18nlocale = localStorage.getItem("i18nextLng");
-    const browserLocale =
-      i18nlocale.substring(0, 2) + i18nlocale.substring(3, 5);
-
-    if (browserLocale === "ptBR") {
-      setLocale(ptBR);
-    }
+    setLocale(ptBR);
+    setEnvVars();
   }, []);
+
+  const setEnvVars = async () => {
+    const { data } = await axios.get("/env-vars");
+    const envVars = data;
+    console.log(envVars, "loaded env vars");
+    api.defaults.baseURL = envVars.REACT_APP_BACKEND_URL;
+    localStorage.setItem(
+      "REACT_APP_BACKEND_URL",
+      envVars.REACT_APP_BACKEND_URL,
+    );
+    setLoading(false);
+  };
+
+  if (loading) return null;
 
   return (
     <ThemeProvider theme={theme}>
