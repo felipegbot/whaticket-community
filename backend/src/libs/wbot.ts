@@ -53,7 +53,12 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
 
       const wbot: Session = new Client({
         session: sessionCfg,
-        authStrategy: new LocalAuth({ clientId: "bd_" + whatsapp.id }),
+        authStrategy: new LocalAuth({
+          clientId: "bd_" + whatsapp.id,
+          dataPath: process.env.PUBLIC_FOLDER_DIR
+            ? `${process.env.PUBLIC_FOLDER_DIR}/sessions`
+            : "./sessions"
+        }),
         puppeteer: {
           executablePath: process.env.CHROME_BIN || undefined,
           // @ts-ignore
@@ -132,7 +137,7 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
 
         wbot.sendPresenceAvailable();
         console.log(`Presence available`);
-        //await syncUnreadMessages(wbot);
+        await syncUnreadMessages(wbot);
         console.log(`Unread messages synced`);
 
         resolve(wbot);
